@@ -178,7 +178,6 @@ def zwroc_wynik():
 
 #######################################################################################################
 def wykres():
-    #POMYSL skalowanie wzgl znaku kierunku wektora zamiast w 4 strony swiata
     vector = np.vectorize(np.float)
     npts = 50000
     ngridx = 200
@@ -187,8 +186,25 @@ def wykres():
 
     dl_wek=sqrt((x_start[0]-x_stop[0])**2+(x_start[1]-x_stop[1])**2)
 
-    x1_pom = np.random.uniform(-dl_wek-abs(x_start[0]-1),dl_wek+abs(x_start[0]+1) , npts)
-    x2_pom = np.random.uniform(-dl_wek-abs(x_start[1]-1),dl_wek+abs(x_start[1]+1), npts)
+    # WZ [N,S,W,E]
+    WZ=[0]*4
+    if kier[0]>=0 and kier[1]>=0:
+        WZ[0]=dl_wek
+        WZ[3]=dl_wek
+    elif kier[0]>=0 and kier[1]<=0:
+        WZ[3]=dl_wek
+        WZ[1]=dl_wek
+    elif kier[0]<=0 and kier[1]<=0:
+        WZ[1]=dl_wek
+        WZ[2]=dl_wek
+    elif kier[0]<=0 and kier[1] >= 0:
+        WZ[0]=dl_wek
+        WZ[2]=dl_wek
+
+
+
+    x1_pom = np.random.uniform(-WZ[2]-abs(x_start[0]-1),WZ[3]+abs(x_start[0]+1) , npts)
+    x2_pom = np.random.uniform(-WZ[1]-abs(x_start[1]-1),WZ[0]+abs(x_start[1]+1), npts)
     #x1_pom=np.random.uniform(-wsp_zakresu-abs(x_start[0]-1),wsp_zakresu+abs(x_start[0]+1),npts)
     #x2_pom=np.random.uniform(-wsp_zakresu-abs(x_start[1]-1),wsp_zakresu+abs(x_start[1]+1),npts)
     z=[]
@@ -203,8 +219,8 @@ def wykres():
     fig,ax1=plt.subplots(1,1)
 
     # Create grid values first.
-    xi = np.linspace(-dl_wek-abs(x_start[0]-1),dl_wek+abs(x_start[0]+1), ngridx)
-    yi = np.linspace(-dl_wek-abs(x_start[0]-1),dl_wek+abs(x_start[0]+1), ngridy)
+    xi = np.linspace(-WZ[2]-abs(x_start[0]-1),WZ[3]+abs(x_start[0]+1), ngridx)
+    yi = np.linspace(-WZ[1]-abs(x_start[1]-1),WZ[0]+abs(x_start[1]+1), ngridy)
 
     # Linearly interpolate the data (x, y) on a grid defined by (xi, yi).
 
@@ -237,16 +253,17 @@ def wykres():
     x_min=xii[-1]
     y_min=yii[-1]
 
-    ax1.plot(x_start_values,x_stop_values) #linia kierunku
+    ax1.plot(x_start_values,x_stop_values,'lime') #linia kierunku
     ax1.plot(x_start[0],x_start[1],'kx',markersize=12,label='punkt startowy') # punkt startowy
-    ax1.plot(xii,yii,'k.') # punkty iteracyjne
-    ax1.plot(x_min,y_min,'rx',markersize=12,label='punkt końcowy') #punkt minimalny
+    ax1.plot(xii,yii,'kx') # punkty iteracyjne
+    ax1.plot(x_min,y_min,color='lime', marker='.',markersize=12,label='punkt końcowy') #punkt minimalny
+    #ax1.scatter(x_min,y_min,s=1000,color='lime',label='punkt końcowy')
     ax1.legend()
 
     fig.colorbar(cntr1, ax=ax1)
 
     #ax1.set(xlim=(dl_kier*(x_start[0]-dl_przedzialu-1), dl_kier*(x_start[0]+dl_przedzialu+1)), ylim=(dl_kier*(x_start[1]-dl_przedzialu-1), dl_kier*(x_start[1]+dl_przedzialu+1))) #to ustawia szerokosc plota
-    ax1.set(xlim=(-dl_wek-abs(x_start[0]-1),dl_wek+abs(x_start[0]+1)), ylim=(-dl_wek-abs(x_start[0]-1),dl_wek+abs(x_start[0]+1))) #to ustawia szerokosc plota
+    ax1.set(xlim=(-WZ[2]-abs(x_start[0]-1),WZ[3]+abs(x_start[0]+1)), ylim=(-WZ[1]-abs(x_start[1]-1),WZ[0]+abs(x_start[1]+1))) #to ustawia szerokosc plota
 
     plt.subplots_adjust(hspace=0.5)
     plt.show()

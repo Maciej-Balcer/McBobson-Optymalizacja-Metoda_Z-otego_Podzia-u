@@ -44,6 +44,7 @@ class Window(QWidget):
 
         self.Oblicz = QPushButton("Oblicz")
         self.Wykres = QPushButton("Wykres")
+        self.HELP = QPushButton("Pomoc")
 
         self.Funkcja_1 = QPushButton("(x1-2)**2 + (x2-2)**2")
         self.Funkcja_2 = QPushButton("exp(x1-x2)*x2-2*x1")
@@ -63,6 +64,7 @@ class Window(QWidget):
         mainLayout.addWidget(self.Pole_terminalu,1,3,4,1)
         mainLayout.addWidget(self.Oblicz,5,3)
         mainLayout.addWidget(self.Wykres,6,3)
+        mainLayout.addWidget(self.HELP,6,0)
         self.setLayout(mainLayout)
 
         #Guzik klika
@@ -72,6 +74,8 @@ class Window(QWidget):
         self.Funkcja_2.clicked.connect(self.Przypisz2)
         self.Funkcja_3.clicked.connect(self.Przypisz3)
         self.Funkcja_4.clicked.connect(self.Przypisz4)
+        self.HELP.clicked.connect(self.Przypisz5)
+
 
         self.Epsilon.setText("0.0001")
         self.Ilosc_Iteracji.setText("100")
@@ -159,7 +163,8 @@ class Window(QWidget):
     def Przypisz4(self):
         self.Wzor.setText("log(x2*x1)")
 
-
+    def Przypisz5(self):
+        self.Wyjscie.setText(info())
 
 
 app = QApplication([])
