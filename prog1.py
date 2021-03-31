@@ -10,7 +10,8 @@ from matplotlib import cm
 
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 from mpl_toolkits.mplot3d import Axes3D
-#komentarz w prog1
+
+
 #================= zmienne globalne ===============
 MAX_ITER=100
 EPS=0.0001
@@ -64,9 +65,12 @@ def Podaj_Kierunek(K):
         kier.append(int(i))
 
     pom=0
-    for i in range(N):
-        pom=pom+kier[i]**2
-    dl_kier=math.sqrt(pom)
+    try:
+        for i in range(N):
+            pom=pom+kier[i]**2
+        dl_kier=math.sqrt(pom)
+    except IndexError:
+        pass
 
 def Dlugosc_Przedzialu(DP):
     global dl_przedzialu,x_stop
@@ -165,7 +169,7 @@ def zwroc_wynik():
         #pom=pom+'('+str(i+1)+') '+"f("+str(round(SZEF[i][0],ACC))+", "+str(round(SZEF[i][1],ACC))+')= '+str(round(eval(wzor),ACC))+'\n'
         pom = pom+'('+str(i+1)+') '+"f("+str(np.around(SZEF[i],decimals=ACC))+")= "+str(round(eval(wzor),ACC))+'\n'
     ustaw_x(odp)
-    pom=pom+"\n#### rozwiązanie optymalne #####\n"
+    pom=pom+"\n######## Rozwiązanie optymalne ##########\n"
     #string = "x1*= " + str(round(odp[0],ACC)) + " x2*= "+str(round(odp[1],ACC))+"\n" + "f(x1*,x2*)= "+str(round(eval(wzor),12))
     for i in range(N):
         string = string + "x"+str(i+1)+"*= "+str(round(odp[i],ACC))+"\n"
