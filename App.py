@@ -24,7 +24,7 @@ def info():
     return instr
 
 class Window(QWidget):
-#komentarz w app
+#Komentasz nowy
     def __init__(self):
         super().__init__()
         self.setWindowTitle('Metoda złotego podziału')
