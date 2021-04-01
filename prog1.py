@@ -4,7 +4,7 @@ import matplotlib.tri as tri
 import numpy as np
 import math
 from math import exp,e
-from numpy import log,sin,cos,tan,sqrt
+from numpy import log,sin,cos,tan,sqrt,log10
 import matplotlib.mlab as ml
 from matplotlib import cm
 
@@ -30,11 +30,11 @@ dl_przedzialu = 0
 dl_kier=0
 iter = 0
 out=[]
-SZEF=[]
+TAB_OUT=[]
 ACC=7
 
 def Clear():
-    global wzor,N,x_start,x_stop,kier,dl_przedzialu,dl_kier,out,SZEF
+    global wzor,N,x_start,x_stop,kier,dl_przedzialu,dl_kier,out,TAB_OUT
 
     wzor = ''
     N = 0
@@ -45,7 +45,7 @@ def Clear():
     iter = 0
     dl_kier=0
     out=[]
-    SZEF=[]
+    TAB_OUT=[]
 
 def Wczytaj_Funkcje(F):
     global wzor,N
@@ -125,7 +125,7 @@ def ustaw_x(x):
 
 # Algorytm złotego podziału
 def golden_method(a,b):
-    global kier,x_start,SZEF
+    global kier,x_start,TAB_OUT
 
     x0=x_start
     k=(math.sqrt(5)-1)/2
@@ -137,13 +137,13 @@ def golden_method(a,b):
         iter+=1
         if f(kier,x0,alfa_L) < f(kier,x0,alfa_R):
             f(kier,x0,alfa_L)
-            SZEF.append(out)
+            TAB_OUT.append(out)
             b=alfa_R
             alfa_R=alfa_L
             alfa_L=b-k*(b-a)
         else:
             f(kier,x0,alfa_R)
-            SZEF.append(out)
+            TAB_OUT.append(out)
             a=alfa_L
             alfa_L=alfa_R
             alfa_R=a+k*(b-a)
@@ -163,11 +163,9 @@ def zwroc_wynik():
     string = ''
     wek = []
     for i in range(iter):
-        #wek=[SZEF[i][0],SZEF[i][1]]
-        wek = (SZEF[i])
+        wek = (TAB_OUT[i])
         ustaw_x(wek)
-        #pom=pom+'('+str(i+1)+') '+"f("+str(round(SZEF[i][0],ACC))+", "+str(round(SZEF[i][1],ACC))+')= '+str(round(eval(wzor),ACC))+'\n'
-        pom = pom+'('+str(i+1)+') '+"f("+str(np.around(SZEF[i],decimals=ACC))+")= "+str(round(eval(wzor),ACC))+'\n'
+        pom = pom+'('+str(i+1)+') '+"f("+str(np.around(TAB_OUT[i],decimals=ACC))+")= "+str(round(eval(wzor),ACC))+'\n'
     ustaw_x(odp)
     pom=pom+"\n######## Rozwiązanie optymalne ##########\n"
     #string = "x1*= " + str(round(odp[0],ACC)) + " x2*= "+str(round(odp[1],ACC))+"\n" + "f(x1*,x2*)= "+str(round(eval(wzor),12))
@@ -250,8 +248,8 @@ def wykres():
     xii=[]
     yii=[]
     for i in range(iter):
-        xii.append(SZEF[i][0])
-        yii.append(SZEF[i][1])
+        xii.append(TAB_OUT[i][0])
+        yii.append(TAB_OUT[i][1])
 
     # punkty X,Y minimalne
     x_min=xii[-1]

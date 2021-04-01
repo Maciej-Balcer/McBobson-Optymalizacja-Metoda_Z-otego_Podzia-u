@@ -9,7 +9,7 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 from PyQt5.QtWidgets import QPushButton, QLineEdit, QApplication, QFormLayout, QWidget, QTextEdit, QSpinBox
 import os
 from math import exp,e
-from numpy import log,sin,cos,tan,sqrt
+from numpy import log,sin,cos,tan,sqrt,log10
 import matplotlib.mlab as ml
 from matplotlib import cm
 import matplotlib.tri as tri
@@ -77,8 +77,8 @@ class Window(QWidget):
         mainLayout.addWidget(self.Przykladowe_Funkcje, 2, 0, 2, 2)
         mainLayout.addWidget(self.Pole_terminalu,4,0,2,2)
         mainLayout.addWidget(self.Oblicz,6,0)
-        mainLayout.addWidget(self.Wykres,6,1)
-        mainLayout.addWidget(self.HELP,6,4)
+        #mainLayout.addWidget(self.Wykres,6,1)
+        mainLayout.addWidget(self.HELP,6,1)
 
         mainLayout.addWidget(self.canvas,1,4,4,1)
         mainLayout.addWidget(self.toolbar,5,4)
@@ -87,10 +87,9 @@ class Window(QWidget):
 
 
 
-
         #Guzik klika
         self.Oblicz.clicked.connect(self.Submit)
-        self.Wykres.clicked.connect(self.wykres2)
+        self.Oblicz.clicked.connect(self.wykres2)
         self.Funkcja_1.clicked.connect(self.Przypisz1)
         self.Funkcja_2.clicked.connect(self.Przypisz2)
         self.Funkcja_3.clicked.connect(self.Przypisz3)
@@ -119,6 +118,7 @@ class Window(QWidget):
 
         if (len(P.x_start)!=len(P.kier))or(len(P.x_start)!=P.N)or(len(P.kier)!=P.N):
             self.Wyjscie.setText('Niezgodność wymiarów (wzór, punkt startowy, wektor P.kierunkowy)!')
+            self.figure.clear()
             return
 
         P.Dlugosc_Przedzialu(int(self.Dlugosc_Przedzialu.text()))
@@ -184,11 +184,18 @@ class Window(QWidget):
         self.Wyjscie.setText(info())
 
     def wykres2(self):
-        if P.N!=2:
-            self.Wyjscie.setText('Wymiar uniemożliwia wizualizację (wymiar musi być równy 2)')
+        if P.N!=2 or len(P.x_start)!=2 or len(P.kier)!=2:
+            if (len(P.x_start)!=len(P.kier))or(len(P.x_start)!=P.N)or(len(P.kier)!=P.N):
+                self.canvas.draw()
+                return
+
+
+            ax1=self.figure.add_subplot(111)
+            text = ax1.text(0.5, 0.5, 'Wizualizacja dostępna tylko\n dla problemów \nn=2',
+                ha='center', va='center', size=20)
+            self.canvas.draw()
             return
         else:
-            self.figure.clear()
             vector = np.vectorize(np.float)
             npts = 50000
             ngridx = 200
@@ -213,11 +220,13 @@ class Window(QWidget):
                 WZ[2]=dl_wek
 
 
+            stala=20
+            #x1_pom = np.random.uniform(-stala-abs(P.x_start[0]-1),stala+abs(P.x_start[0]+1) , npts)
+            #x2_pom = np.random.uniform(-stala-abs(P.x_start[1]-1),stala+abs(P.x_start[1]+1), npts)
 
-            x1_pom = np.random.uniform(-WZ[2]-abs(P.x_start[0]-1),WZ[3]+abs(P.x_start[0]+1) , npts)
+            x1_pom = np.random.uniform(-WZ[2]-abs(P.x_start[0]-1),WZ[3]+abs(P.x_start[0]+1),npts)
             x2_pom = np.random.uniform(-WZ[1]-abs(P.x_start[1]-1),WZ[0]+abs(P.x_start[1]+1), npts)
-            #x1_pom=np.random.uniform(-wsp_zakresu-abs(P.x_start[0]-1),wsp_zakresu+abs(P.x_start[0]+1),npts)
-            #x2_pom=np.random.uniform(-wsp_zakresu-abs(P.x_start[1]-1),wsp_zakresu+abs(P.x_start[1]+1),npts)
+
             z=[]
             for i in range(len(x1_pom)):
                 x1=x1_pom[i]
@@ -234,20 +243,15 @@ class Window(QWidget):
             xi = np.linspace(-WZ[2]-abs(P.x_start[0]-1),WZ[3]+abs(P.x_start[0]+1), ngridx)
             yi = np.linspace(-WZ[1]-abs(P.x_start[1]-1),WZ[0]+abs(P.x_start[1]+1), ngridy)
 
-            # Linearly interpolate the data (x, y) on a grid defined by (xi, yi).
 
             triang = tri.Triangulation(x1, x2)
             interpolator = tri.LinearTriInterpolator(triang, z)
             Xi, Yi = np.meshgrid(xi, yi)
             zi = interpolator(Xi, Yi)
 
-            # Note that scipy.interpolate provides means to interpolate data on a grid
-            # as well. The following would be an alternative to the four lines above:
-            #from scipy.interpolate import griddata
-            #zi = griddata((x, y), z, (xi[None, :], yi[:, None]), method='linear')
 
-            ax1.contour(xi, yi, zi, levels=14, linewidths=0.5, colors='k')
-            cntr1 = ax1.contourf(xi, yi, zi, levels=14, cmap="RdBu_r")
+            ax1.contour(xi, yi, zi, levels=100, linewidths=0.5, colors='k')
+            cntr1 = ax1.contourf(xi, yi, zi, levels=100, cmap="RdBu_r")
 
 
             # punkt do prostej P.kierunkowej
@@ -258,8 +262,8 @@ class Window(QWidget):
             xii=[]
             yii=[]
             for i in range(P.iter):
-                xii.append(P.SZEF[i][0])
-                yii.append(P.SZEF[i][1])
+                xii.append(P.TAB_OUT[i][0])
+                yii.append(P.TAB_OUT[i][1])
 
             # punkty X,Y minimalne
             x_min=xii[-1]
@@ -269,19 +273,11 @@ class Window(QWidget):
             ax1.plot(P.x_start[0],P.x_start[1],'kx',markersize=12,label='punkt startowy') # punkt startowy
             ax1.plot(xii,yii,'kx') # punkty iteracyjne
             ax1.plot(x_min,y_min,color='lime', marker='.',markersize=12,label='punkt końcowy') #punkt minimalny
-            #ax1.scatter(x_min,y_min,s=1000,color='lime',label='punkt końcowy')
+
             ax1.legend()
-
             self.figure.colorbar(cntr1, ax=ax1)
-
-            #ax1.set(xlim=(dl_P.kier*(P.x_start[0]-dl_przedzialu-1), dl_P.kier*(P.x_start[0]+dl_przedzialu+1)), ylim=(dl_P.kier*(P.x_start[1]-dl_przedzialu-1), dl_P.kier*(P.x_start[1]+dl_przedzialu+1))) #to ustawia szerokosc plota
             ax1.set(xlim=(-WZ[2]-abs(P.x_start[0]-1),WZ[3]+abs(P.x_start[0]+1)), ylim=(-WZ[1]-abs(P.x_start[1]-1),WZ[0]+abs(P.x_start[1]+1))) #to ustawia szerokosc plota
-
-            #plt.subplots_adjust(hspace=0.5)
-            #plt.show()
             self.canvas.draw()
-
-
 
 
 
