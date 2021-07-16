@@ -1,1 +1,1 @@
-Optymalizacja-Metoda_Z-otego_Podzia-u
+Optymalizacja funkcji wielu zmiennych metodą złotego podziału
